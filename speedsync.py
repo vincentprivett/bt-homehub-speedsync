@@ -1,28 +1,31 @@
 #!/usr/bin/python3
-import requests, re, csv, os.path, time
+import requests
+import re
+import csv
+import os
+import sys
+import time
+
+os.chdir(sys.path[0]) # set working directory to save csv when run as cron job
 url = 'http://192.168.1.254/cgi/cgi_basicStatus.js'
 data = requests.get(url)
-
-try:
-    data.raise_for_status()
-    print('Page Downloaded')
-except Exception as exc:
-    print('There was a problem: %s' % (exc))
 
 # https://stackoverflow.com/questions/47515137/extracting-data-from-javascript-var-inside-script-with-python
 linestatus = re.search('var linestatus = (.+)[,;]{1}', data.text).group(1) # extract line status
 
-# regex to extract the values from linestatus
-# group 1 matches any word character 1 or more times
-# group 2 mathces any char 1 or more times
+'''
+regex to extract the values from linestatus
+group 1 (key) matches any word character one or more times
+group 2 (value) mathces any char one or more times
+'''
+
 lsRegex = re.compile(r"(\w+):'(.+?)'")
 lsItems = lsRegex.findall(linestatus)
 lsKey = []
 lsValue = []
 for x in range(len(lsItems)):
-    lsKey.append(lsItems[x][0]) # line status headers from .js
-    lsValue.append(lsItems[x][1]) # line status values from .js
-
+    lsKey.append(lsItems[x][0]) # buld list of line status keys from .js
+    lsValue.append(lsItems[x][1]) # buld list of line status values from .js
 
 time = time.strftime('%d-%m-%Y %H:%M:%S') # assigns time to use in csv when adding values
 file_exists = os.path.isfile('syncresults.csv')
