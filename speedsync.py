@@ -1,10 +1,5 @@
 #!/usr/bin/python3
-import requests
-import re
-import csv
-import os
-import sys
-import time
+import requests, re, csv, os, sys, time
 
 os.chdir(sys.path[0]) # set working directory to save csv when run as cron job
 url = 'http://192.168.1.254/cgi/cgi_basicStatus.js'
@@ -18,7 +13,6 @@ lsRegex = re.compile(r"(\w+):'(.+?)'")
 # regex to extract the values from linestatus
 # group 1 (key) matches any word character one or more times
 # group 2 (value) mathces any char one or more times
-
 lsItems = lsRegex.findall(linestatus)
 lsKey = []
 lsValue = []
@@ -40,7 +34,3 @@ with open('syncresults.csv', "a") as csvfile:
     if not file_exists: # check if file exists
         writer.writerow(['time', 'upload rate', 'download rate'] + lsKey) # add header to csv file if file doesn't exist
     writer.writerow([time] + wanRateLinkRateList + lsValue) # add time and values to csv file
-
-
-
-
